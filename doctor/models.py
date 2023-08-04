@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
+from datetime import timedelta
 class DoctorManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -78,6 +78,7 @@ class Slot(models.Model):
 
 class Doctor(AbstractBaseUser, PermissionsMixin):
     doctor_name = models.CharField(max_length=100)
+    doctor_image = models.ImageField(upload_to='doctor_images/', blank=True, null=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     doctor_department = models.ForeignKey(Department, on_delete=models.CASCADE)
@@ -115,14 +116,26 @@ class Doctor(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.doctor_name
+    
+    def get_available_dates(self):
+        tomorrow = timezone.now().date() + timedelta(days=1)
+        six_days_later = timezone.now().date() + timedelta(days=6)
+
+        available_dates = Slot.objects.filter(
+            doctor=self,
+            date__range=[tomorrow, six_days_later],
+            is_available=True
+        ).values_list('date', flat=True).distinct()
+
+        return list(available_dates)
 
     def get_available_slots(self):
         return Slot.objects.filter(doctor=self, date__gte=timezone.now().date(), is_available=True)
 
-    def get_available_dates(self):
-        available_dates = Slot.objects.filter(doctor=self, date__gte=timezone.now().date(),
-                                              is_available=True).values_list('date', flat=True).distinct()
-        return list(available_dates)
+    # def get_available_dates(self):
+    #     available_dates = Slot.objects.filter(doctor=self, date__gte=timezone.now().date(),
+    #                                           is_available=True).values_list('date', flat=True).distinct()
+    #     return list(available_dates)
 
     def mark_date_unavailable(self, date):
         slots_to_mark_unavailable = Slot.objects.filter(doctor=self, date=date, is_available=True)

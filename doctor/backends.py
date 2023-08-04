@@ -12,7 +12,7 @@ class DoctorModelBackend(BaseBackend):
         try:
             print("Attempting authentication for email:", email)
             doctor = User.objects.get(email=email)
-            if doctor.check_password(password):
+            if doctor.is_active and doctor.check_password(password):
                 print("Authentication successful for email:", email)
                 doctor.backend = 'doctor.backends.DoctorModelBackend'
                 return doctor

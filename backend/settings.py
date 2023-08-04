@@ -205,15 +205,15 @@ STATIC_URL = 'static/'
 # AUTH_USER_MODEL = 'account.User'
 
 # LOGIN_REDIRECT_URL = '/admin/'
-# AUTH_USER_MODEL = 'account.User'
+
 
 AUTHENTICATION_BACKENDS = [
     'doctor.backends.DoctorModelBackend',  # For doctors
     'account.authentication.EmailModelBackend',  # For users
-
+ 'django.contrib.auth.backends.ModelBackend',
 ]
-AUTH_USER_MODEL = 'doctor.Doctor'
-
+# AUTH_USER_MODEL = 'doctor.Doctor'
+AUTH_USER_MODEL = 'account.User'
     # 'django.contrib.auth.backends.ModelBackend',
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
