@@ -9,7 +9,9 @@ from rest_framework.decorators import api_view
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
-        'review/app',
+        'review/create',
+        'review/update',
+        'review/retrieve',
        
     ]
     return Response(routes)
