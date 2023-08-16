@@ -17,9 +17,10 @@ class QualificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SlotSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.ReadOnlyField(source='doctor.doctor_name')
     class Meta:
         model = Slot
-        fields = '__all__'
+        fields = ['id', 'time', 'date', 'is_available', 'doctor', 'doctor_name']
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:

@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'account',
     'doctor',
-
+    'booking',
+    'razorpay_api',
+    'report',
+    'review',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -105,9 +108,10 @@ SIMPLE_JWT = {
 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
 
-    "corsheaders.middleware.CorsMiddleware",
+    
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -212,8 +216,9 @@ AUTHENTICATION_BACKENDS = [
     'account.authentication.EmailModelBackend',  # For users
  'django.contrib.auth.backends.ModelBackend',
 ]
-# AUTH_USER_MODEL = 'doctor.Doctor'
-AUTH_USER_MODEL = 'account.User'
+# AUTH_USER_MODEL = 'account.User'
+AUTH_USER_MODEL = 'doctor.Doctor'
+
     # 'django.contrib.auth.backends.ModelBackend',
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

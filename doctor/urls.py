@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from .views import DoctorListView,DoctorDetailView, AddressDetailView,AddressCreateView
 
-from .views import DoctorRegistrationView, DoctorLoginView, DoctorList,Departments,Qualifications,qualification_ById,department_byId
+from .views import DoctorRegistrationView, DoctorLoginView, DoctorList,Departments,Qualifications,qualification_ById,department_byId,get_available_slots
 urlpatterns = [
     path('', views.getRoutes),
     path('register/', DoctorRegistrationView.as_view(), name='doctor-register'),
@@ -18,4 +18,9 @@ urlpatterns = [
     path('department/<int:department_id>/', views.department_byId, name='department_byId'),
     path('qualification/<int:qualification_id>/', views.qualification_ById, name='qualification_ById'),
     path('get_available_dates/<int:doctor_id>/', views.get_available_dates, name='get_available_dates'),
+    path('get_available_slots/<int:doctor_id>/',views.get_available_slots,name='get_available_slots'),
+     path('refresh/', views.MyTokenRefreshView.as_view(), name='token_refresh'),
+    # path('refresh1/', views.refresh_access_token, name='token_refresh'),
+    path('slot/<int:slotId>/',views.get_date_and_time,name='slot_by_id'),
+    
 ]

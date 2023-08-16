@@ -1,16 +1,15 @@
-from django.shortcuts import render
 from rest_framework.response import Response
-from django.http import HttpResponseRedirect
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
-
+from rest_framework.generics import CreateAPIView
 from rest_framework.generics import ListCreateAPIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import UserSerializer
+from .serializers import UserSerializer,PatientSerializer
 
-from .models import User
+from .models import User,Patient
 
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
@@ -56,15 +55,6 @@ def userList(request):
     
     return Response(serializer.data)
 
-# class RegisterView(APIView):
-#     def post(self, request):
-#         serializer = UserSerializer(data=request.data)
-#         if not serializer.is_valid():
-#             print(serializer.errors)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         print('serializer',serializer.data)
-#         return Response(serializer.data)
 
 from django.contrib.auth.hashers import make_password
 
@@ -79,3 +69,27 @@ class RegisterView(APIView):
         serializer.save(password=password)
 
         return Response(serializer.data)
+
+@api_view(['GET'])
+def get_patients(request,userId):
+    
+    try:
+        patients=Patient.objects.filter(user=userId)
+        serializer=PatientSerializer(patients,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Patient.DoesNotExist:
+        return Response({'details':'patients not found'},status=status.HTTP_404_NOT_FOUND)
+
+
+
+class PatientCreateView(CreateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+
+
+@api_view(['POST'])
+def create_booking(request):
+    print(request.data)
+    return Response({'message':'good'},status=201)

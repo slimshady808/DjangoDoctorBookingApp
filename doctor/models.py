@@ -73,7 +73,9 @@ class Slot(models.Model):
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.doctor} - {self.date} {self.time} (Available: {self.is_available})"
+        return f"{self.id}-{self.doctor} - {self.date} {self.time} (Available: {self.is_available})"
+    class Meta:
+        unique_together = ['doctor', 'date', 'time']
 
 
 class Doctor(AbstractBaseUser, PermissionsMixin):
@@ -136,6 +138,9 @@ class Doctor(AbstractBaseUser, PermissionsMixin):
     #     available_dates = Slot.objects.filter(doctor=self, date__gte=timezone.now().date(),
     #                                           is_available=True).values_list('date', flat=True).distinct()
     #     return list(available_dates)
+    def get_available_slots_by_date(self, selected_date):
+        slots = Slot.objects.filter(doctor=self, date=selected_date, is_available=True)
+        return slots
 
     def mark_date_unavailable(self, date):
         slots_to_mark_unavailable = Slot.objects.filter(doctor=self, date=date, is_available=True)
