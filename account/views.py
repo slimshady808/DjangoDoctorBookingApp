@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 
@@ -47,16 +47,6 @@ def getRoutes(request):
     ]
     return Response(routes)
 
-@api_view(['GET'])
-def userList(request):
-    
-    users = User.objects.filter(is_superuser=False)
-    serializer = UserSerializer(users, many=True)
-    
-    return Response(serializer.data)
-
-
-from django.contrib.auth.hashers import make_password
 
 class RegisterView(APIView):
     def post(self, request):
@@ -69,6 +59,20 @@ class RegisterView(APIView):
         serializer.save(password=password)
 
         return Response(serializer.data)
+
+
+
+
+@api_view(['GET'])
+def userList(request):
+    
+    users = User.objects.filter(is_superuser=False)
+    serializer = UserSerializer(users, many=True)
+    
+    return Response(serializer.data)
+
+
+
 
 @api_view(['GET'])
 def get_patients(request,userId):

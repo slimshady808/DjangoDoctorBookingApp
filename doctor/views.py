@@ -168,9 +168,7 @@ class DoctorList(APIView):
             department=Department.objects.get(id=department_id)
             doctor['department_name']=department.name
 
-        # department_name=department.name
-        # for doctor in data:
-        #     doctor['departmet_name']=department_name
+        
         return Response(data, status=status.HTTP_200_OK)
     
 
@@ -248,20 +246,7 @@ def get_available_dates(request, doctor_id):
     except Doctor.DoesNotExist:
         return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# @api_view(['GET'])
-# def get_available_slots(request,doctor_id):
-#     doctor=Doctor.objects.get(id=doctor_id)
 
-#     selected_date = request.GET.get('date')
-#     if not selected_date:
-#         return Response({'error':'not a valid date'},status=status.HTTP_400_BAD_REQUEST)
-#     try:
-#         slots=doctor.get_available_slots_by_date(selected_date)
-#         serializer=SlotSerializer(slots,many=True)
-#         return Response({'available_slots':serializer.data},status=status.HTTP_200_OK)
-    
-#     except Exception as e :
-#         return Response({'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def get_available_slots(request, doctor_id):
@@ -300,16 +285,3 @@ def get_date_and_time(request, slotId):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Slot.DoesNotExist:
         return Response({'error': 'slot does not exist'}, status=status.HTTP_404_NOT_FOUND)
-# @api_view(['GET'])
-# def get_available_slots(request,doctorId):
-#     try:
-#         doctor=Doctor.objects.get(id=doctorId)
-#         today = timezone.now().date()
-
-#         slots=Slot.objects.filter(doctor=doctor,is_available=True, date__gte=today)
-
-#         serializer= SlotSerializer(slots,many=True)
-
-#         return Response (serializer.data,status=status.HTTP_200_OK)
-#     except Slot.DoesNotExist:
-#         return Response({'error':'slots does not exists'},status=status.HTTP_404_NOT_FOUND)

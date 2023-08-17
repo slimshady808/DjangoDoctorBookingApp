@@ -11,6 +11,7 @@ from .serializers import ReportSerializer,TestSerializer,TestTitleSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 @api_view(['GET'])
@@ -67,10 +68,6 @@ def get_test_titles(request):
     serializer=TestTitleSerializer(tes_titles,many=True)
     return Response(serializer.data,status=status.HTTP_200_OK)
 
-# class TestCreateView(CreateAPIView):
-    
-#     serializer_class = TestSerializer
-#     queryset = Test.objects.all()
 
 class TestReportCreateView(APIView):
     def post(self, request, format=None):
@@ -81,3 +78,49 @@ class TestReportCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class GetTestsByReportView(APIView):
+#     def get(self, request, report_id):
+#         try:
+#             report = Report.objects.get(pk=report_id)
+#             tests = Test.objects.filter(report=report)
+#             response_data=[]
+#             for test in tests:
+#                 response_data.append({
+#                     'test_id':test.id,
+#                     'test_name':test.test_title.test_name,
+#                     'test_date':test.date_of_test,
+#                     'notes':test.notes,
+#                     'result':test.result
+
+#                 })
+#             return Response(response_data,status=status.HTTP_200_OK)
+
+#         except Report.DoesNotExist:
+#             return Response({"error": "Report does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+class GetTestsByReportView(APIView):
+    def get(self, request, report_id):
+        try:
+            report = Report.objects.get(pk=report_id)
+            tests = Test.objects.filter(report=report)
+            response_data=[]
+            for test in tests:
+                response_data.append({
+                    'test_id':test.id,
+                    'test_name':test.test_title.test_name,
+                    'test_date':test.date_of_test,
+                    'notes':test.notes,
+                    'result':test.result.url  # Get the URL of the uploaded file
+                })
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Report.DoesNotExist:
+            return Response({"error": "Report does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+class DeleteTestView(APIView):
+    def delete(request,self,test_id):
+        test=get_object_or_404(Test,pk=test_id)
+        test.delete()
+        return Response({'data':'deleted'},status=status.HTTP_204_NO_CONTENT)

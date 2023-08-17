@@ -219,6 +219,14 @@ AUTHENTICATION_BACKENDS = [
 # AUTH_USER_MODEL = 'account.User'
 AUTH_USER_MODEL = 'doctor.Doctor'
 
+# import os
+
+# if os.environ.get('USE_DOCTOR_AUTH', True):
+#     AUTH_USER_MODEL = 'doctor.Doctor'
+# else:
+#     AUTH_USER_MODEL = 'account.User'
+
+
     # 'django.contrib.auth.backends.ModelBackend',
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

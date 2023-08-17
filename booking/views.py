@@ -15,6 +15,8 @@ import json
 import jwt
 import environ
 import razorpay
+from django.utils import timezone
+
 # Create your views here.
 
 
@@ -26,11 +28,47 @@ def getRoutes(request):
     ]
     return Response(routes)
 
+# class BookingCreateView(CreateAPIView):
+
+#     queryset = Booking.objects.all()
+#     serializer_class = BookingSerializer
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
 class BookingCreateView(CreateAPIView):
 
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-   
+    
+    def post(self, request, *args, **kwargs):
+        # Get the JWT token from the Authorization header
+        authorization_header = request.headers.get('Authorization')
+        if authorization_header and authorization_header.startswith('Bearer '):
+            jwt_token = authorization_header.split(' ')[1]
+        else:
+            return Response({'error': 'JWT token not provided'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify and decode the JWT token
+        try:
+            decoded_token = RefreshToken(jwt_token, verify=False)
+        except Exception as e:
+            return Response({'error': 'Invalid JWT token'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Check if the token is expired
+        if decoded_token.payload['exp'] < timezone.now().timestamp():
+            return Response({'error': 'JWT token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Print all fields in the JWT token payload
+        print("JWT Token Payload:")
+        for key, value in decoded_token.payload.items():
+            print(f"{key}: {value}")
+        
+        # Continue with your view logic
+        return super().post(request, *args, **kwargs)
+
+
+
+
 
 env = environ.Env()
 

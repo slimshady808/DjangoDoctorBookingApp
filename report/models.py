@@ -30,7 +30,7 @@ class Test(models.Model):
     test_title = models.ForeignKey(TestTitle, on_delete=models.CASCADE, related_name='tests')
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='tests')
     date_of_test = models.DateField()
-    result = models.FileField(upload_to='test_results/',blank=True)
+    result = models.FileField(upload_to='test_results/')
     notes=models.CharField(max_length=255)
 
     def __str__(self):
@@ -44,37 +44,6 @@ class Test(models.Model):
 
 
 
-# from django.db import models
 
-# # Create your models here.
-# class TestTitle(models.Model):
-#     test_name=models.CharField(max_length=30)
-#     description=models.TextField(blank=True)
-
-#     def __str__(self) :
-#         return self.test_name
-    
-# class Report(models.Model):
-#     symptoms=models.CharField(max_length=255)
-#     extra_notes=models.TextField(blank=True)
-
-#     def __str__(self):
-#         return f"Report ID: {self.report_id}"
-
-# class Test(models.Model):
-#     test_title= models.ForeignKey(TestTitle,on_delete=models.CASCADE)
-#     report=models.ForeignKey(Report,on_delete=models.CASCADE)
-#     date_of_test=models.DateField()
-#     result=models.CharField(max_length=255)
-
-# class Medicine(models.Model):
-#     medicine_name = models.CharField(max_length=255)
-
-#     def __str__(self):
-#         return self.medicine_name
-
-# class ReportMedicine(models.Model):
-#     report=models.ForeignKey(Report,on_delete=models.CASCADE)
-#     medicine=models.ForeignKey(Medicine,on_delete=models.CASCADE)
 
         
