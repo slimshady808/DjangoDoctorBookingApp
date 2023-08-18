@@ -239,3 +239,7 @@ CORS_ALLOWED_ORIGINS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# STATIC_DIR = os.path.join(BASE_DIR, 'media')
+# STATIC_URL = '/media/'
+# STATICFILES_DIRS = [STATIC_DIR, ]
