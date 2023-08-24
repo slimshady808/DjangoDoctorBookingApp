@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'razorpay_api',
     'report',
     'review',
+    'chat',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -140,7 +142,17 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+# WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
+
+# CHANNEL_LAYERS = {
+#         "default": {
+#             "BACKEND": "channels_redis.core.RedisChannelLayer",
+#             "CONFIG": {
+#                 "hosts": [("localhost", 6379)],
+#             },
+#         },
+#     }
 
 
 # Database
@@ -196,19 +208,10 @@ STATIC_URL = 'static/'
 
 
 
-#AUTHENTICATION_BACKENDS = ['account.authentication.EmailModelBackend']
-# AUTHENTICATION_BACKENDS = ['doctorapp.backends.DoctorModelBackend']
-
-
-# AUTHENTICATION_BACKENDS = ['doctor.backends.EmailModelBackend']
 
 
 
-# AUTH_USER_MODEL = 'account.User'
-# AUTHENTICATION_BACKENDS = ['doctor.backends.DoctorModelBackend']
-# AUTH_USER_MODEL = 'account.User'
 
-# LOGIN_REDIRECT_URL = '/admin/'
 
 
 AUTHENTICATION_BACKENDS = [
@@ -219,15 +222,7 @@ AUTHENTICATION_BACKENDS = [
 # AUTH_USER_MODEL = 'account.User'
 AUTH_USER_MODEL = 'doctor.Doctor'
 
-# import os
 
-# if os.environ.get('USE_DOCTOR_AUTH', True):
-#     AUTH_USER_MODEL = 'doctor.Doctor'
-# else:
-#     AUTH_USER_MODEL = 'account.User'
-
-
-    # 'django.contrib.auth.backends.ModelBackend',
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

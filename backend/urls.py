@@ -25,6 +25,7 @@ urlpatterns = [
     path('booking/', include('booking.urls')),
     path('report/', include('report.urls')),
     path('review/', include('review.urls')),
+    path('chat/', include('chat.urls')),
     # path('razorpay/',include('razorpay_api.urls')),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
