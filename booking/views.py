@@ -294,7 +294,8 @@ class DoctorBookingHistory(APIView):
                     'patient_name':booking.patient_id.name,
                     'patient_age':booking.patient_id.age,
                     'booking_status':booking.status,
-                    'patient_id':booking.patient_id.id
+                    'patient_id':booking.patient_id.id,
+                    'user_id':booking.patient_id.user.id
 
                 })
             return Response(response_data, status=status.HTTP_200_OK)
