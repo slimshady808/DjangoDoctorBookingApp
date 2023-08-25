@@ -34,7 +34,7 @@ class ReviewList(APIView):
     def get(self, request,doctor_id):
         reviews = Review.objects.filter(doctor=doctor_id)
         serializer = ReviewSerializer(reviews, many=True)
-        print(serializer.data)
+       
         return Response(serializer.data)
     
 # class ReviewCreate(APIView):
