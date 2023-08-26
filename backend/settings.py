@@ -154,6 +154,11 @@ ASGI_APPLICATION = 'backend.asgi.application'
 #         },
 #     }
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -219,7 +224,7 @@ AUTHENTICATION_BACKENDS = [
     'account.authentication.EmailModelBackend',  # For users
  'django.contrib.auth.backends.ModelBackend',
 ]
-# AUTH_USER_MODEL = 'account.User'
+#AUTH_USER_MODEL = 'account.User'
 AUTH_USER_MODEL = 'doctor.Doctor'
 
 
