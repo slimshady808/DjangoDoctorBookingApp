@@ -1,47 +1,47 @@
-# chat/views.py
-from rest_framework.response import Response
+# # chat/views.py
+
 from rest_framework.decorators import api_view
 from rest_framework import generics
-from .models import UserToDoctorMessage, DoctorToUserMessage
-from .serializers import UserToDoctorMessageSerializer, DoctorToUserMessageSerializer
-
-class CreateUserToDoctorMessage(generics.CreateAPIView):
-    queryset=UserToDoctorMessage.objects.all()
-    serializer_class=UserToDoctorMessageSerializer
-
-class UserToDoctorMessageDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = UserToDoctorMessage.objects.all()
-    serializer_class = UserToDoctorMessageSerializer
-
-class CreateDoctorToUserMessage(generics.CreateAPIView):
-    queryset=DoctorToUserMessage.objects.all()
-    serializer_class=DoctorToUserMessageSerializer
-
-# class DoctorToUserMessageListCreateView(generics.ListCreateAPIView):
-#     queryset = DoctorToUserMessage.objects.all()
-#     serializer_class = DoctorToUserMessageSerializer
-
-class DoctorToUserMessageDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = DoctorToUserMessage.objects.all()
-    serializer_class = DoctorToUserMessageSerializer
-
-
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Message
+from .serializers import MessageSerializer
+from account.models import UserProfile
+from doctor.models import Doctor
+from django.db import models
 
 
 @api_view(['GET'])
-def fetch_messages(request,  doctor_id ,user_id):
-    # Fetch messages sent by the user to the doctor
-    user_to_doctor_messages = UserToDoctorMessage.objects.filter(sender=user_id, receiver=doctor_id)
+def getRoutes(request):
+    routes = [
+        'booking/history',
+        'booking/create'
+    ]
+    return Response(routes)
 
-    # Fetch messages sent by the doctor to the user
-    doctor_to_user_messages = DoctorToUserMessage.objects.filter(sender=doctor_id, receiver=user_id)
+class MessageCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Combine and order the messages by timestamp
-    all_messages = list(user_to_doctor_messages) + list(doctor_to_user_messages)
-    all_messages.sort(key=lambda message: message.timestamp)
 
-    # Serialize the messages and return the response
-    serializer = UserToDoctorMessageSerializer(all_messages, many=True)
-    
-    return Response(serializer.data)
+class UserDoctorChatView(APIView):
+    def get(self,request,user_id,doctor_id,*args,**kwargs):
+        try:
+            user_profile=UserProfile.objects.get(id=user_id)
+            doctor_profile=UserProfile.objects.get(id=doctor_id)
+        except UserProfile.DoesNotExist:
+            return Response({"error":"invalid user or doctor"}, status=status.HTTP_400_BAD_REQUEST)
+        # Fetch all messages related to the user and doctor
+        messages=Message.objects.filter(
+            (models.Q(sender=user_profile)&models.Q(receiver=doctor_profile)) |
+            (models.Q(sender=doctor_profile)&models.Q(receiver=user_profile))
 
+        ).order_by('timestamp')
+
+        serializer=MessageSerializer(messages,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)

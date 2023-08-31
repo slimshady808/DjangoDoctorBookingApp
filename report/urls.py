@@ -10,7 +10,6 @@ urlpatterns = [
     path('test-titles/',views.get_test_titles,name='test-titles'),
     path('test-create/',views.TestReportCreateView.as_view(),name='test-create'),
     path('test-list/<int:report_id>/',views.GetTestsByReportView.as_view(),name='test-list'),
-    path('delete/<int:test_id>/',views.DeleteTestView.as_view(),name='delete-test')
-
-
+    path('delete/<int:test_id>/',views.DeleteTestView.as_view(),name='delete-test'),
+    path('health_result/<int:booking_id>/',views.GetHeathReportByBookingId.as_view(),name='health_report')
 ]

@@ -35,15 +35,3 @@ class Test(models.Model):
 
     def __str__(self):
         return f"Test ID: {self.pk} - {self.test_title}"
-
-
-
-
-
-
-
-
-
-
-
-        

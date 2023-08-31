@@ -1,18 +1,37 @@
 from django.contrib import admin
-from .models import Doctor, Address, Department, Qualification, Slot
+from .models import Address, Department, Qualification, Slot, Doctor
 
-# Customizing the Doctor Admin
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ('state', 'district', 'street', 'building')
+
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+class QualificationAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+
+class SlotAdmin(admin.ModelAdmin):
+    list_display = ('doctor', 'date', 'time', 'is_available')
+    list_filter = ('doctor', 'date', 'is_available')
+
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('doctor_name', 'email', 'doctor_department', 'qualification', 'is_active', 'is_staff')
-    list_filter = ('is_active', 'is_staff', 'doctor_department', 'qualification')
-    search_fields = ('doctor_name', 'email', 'phone')
+    list_display = ('doctor_name', 'doctor_department', 'phone', 'is_active', 'is_staff')
+    list_filter = ('doctor_department', 'is_active', 'is_staff')
+    search_fields = ('doctor_name', 'doctor_department__name', 'phone')
     ordering = ('doctor_name',)
-    filter_horizontal = ('groups', 'user_permissions')
+    fieldsets = (
+        (None, {'fields': ('user_profile', 'doctor_name', 'doctor_department', 'qualification')}),
+        ('Contact Info', {'fields': ('phone', 'fee', 'address')}),
+        ('Additional Info', {'fields': ('more_details',)}),
+         ('Image', {'fields': ('doctor_image',)}),  
+        ('Permissions', {'fields': ('is_active', 'is_staff')}),
+    )
 
-# Registering the models with their respective admins
-admin.site.register(Doctor, DoctorAdmin)
-admin.site.register(Address)
-admin.site.register(Department)
-admin.site.register(Qualification)
-admin.site.register(Slot)
+admin.site.register(Address, AddressAdmin)
+admin.site.register(Department, DepartmentAdmin)
+admin.site.register(Qualification, QualificationAdmin)
+admin.site.register(Slot, SlotAdmin)
+admin.site.register(Doctor,
+                    #  DoctorAdmin
+                     )
 

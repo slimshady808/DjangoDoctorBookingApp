@@ -1,12 +1,15 @@
 from rest_framework import serializers
-from .models import User, Patient
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'username', 'is_active', 'is_admin', 'is_staff', 'image_of_user']
+from .models import UserProfile, Patient
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ['id', 'user', 'name', 'mobile_number', 'place', 'age', 'summary']
+        fields = '__all__'
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    patient_profile = PatientSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ('id','username', 'email', 'user_type', 'is_active', 'is_staff', 'image_of_user', 'patient_profile')
+        read_only_fields = ('id', 'is_staff')

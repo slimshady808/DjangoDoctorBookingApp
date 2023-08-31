@@ -1,6 +1,6 @@
 from django.db import models
 from doctor.models import Doctor
-from account.models import User
+from account.models import UserProfile
 # Create your models here.
 
 
@@ -10,7 +10,7 @@ class Review(models.Model):
     doctor= models.ForeignKey(Doctor,on_delete=models.CASCADE)
     is_show=models.BooleanField(default=True)
     created_at= models.DateField(auto_now_add=True)
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ['user', 'doctor'] 

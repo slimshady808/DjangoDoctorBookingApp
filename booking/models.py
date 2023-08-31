@@ -21,14 +21,11 @@ class Booking(models.Model):
     date_of_booking = models.DateField()
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES,default='wallet')
+    payment_type = models.CharField(max_length=10, choices=PAYMENT_CHOICES,default='online')
     token = models.CharField(max_length=6, unique=True, editable=False)
     
 
     def save(self, *args, **kwargs):
-        # if self.slot:
-        #     self.slot.is_available = False
-        #     self.slot.save()
         if not self.token:
             # Generate a unique 6-digit token using a combination of random digits
             self.token = str(uuid.uuid4().int)[:6]
@@ -36,6 +33,7 @@ class Booking(models.Model):
     
     def __str__(self):
         return f"Booking ID: {self.booking_id}, Patient: {self.patient_id}, Doctor: {self.doctor}, Date: {self.date_of_booking}, Slot: {self.slot}, Status: {self.get_status_display()}, Payment Type: {self.get_payment_type_display()}"
+
 
 class Payment(models.Model):
     booking = models.OneToOneField(Booking, on_delete=models.CASCADE)
@@ -52,4 +50,4 @@ class Payment(models.Model):
             self.booking.slot.save()
 
     def __str__(self):
-        return f"Payment for Booking {self.booking.booking_id} "
+        return f"Payment for Booking {self.booking.booking_id} "    

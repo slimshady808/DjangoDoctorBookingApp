@@ -17,3 +17,4 @@ class TestAdmin(admin.ModelAdmin):
     list_filter = ('test_title', 'date_of_test')
     search_fields = ('test_title__test_name', 'report__symptoms', 'report__booking_id__patient__user__username')  # Adjust search fields based on your models
 
+

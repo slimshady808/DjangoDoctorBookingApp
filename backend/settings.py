@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)e43mqlk!jejac#fplw)pm=j4_ihu)i*6c3zzn4+m7l^55c$1z'
+SECRET_KEY = 'django-insecure-*rjzpd5nr+jlzy*58z^%0t40y-3=oyy=u+dmfk(b(*ikefd(e+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,14 +42,15 @@ INSTALLED_APPS = [
     'account',
     'doctor',
     'booking',
-    'razorpay_api',
-    'report',
     'review',
+    'report',
     'chat',
+
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
 ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -65,6 +66,18 @@ REST_FRAMEWORK = {
     ]
     
 }
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
 
 
 SIMPLE_JWT = {
@@ -108,22 +121,6 @@ SIMPLE_JWT = {
 }
 
 
-
-MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
-    'django.middleware.security.SecurityMiddleware',
-
-    
-
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'backend.custom_auth_middleware.CustomAuthenticationMiddleware',
-]
-
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -143,36 +140,26 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'backend.wsgi.application'
+AUTH_USER_MODEL = 'account.UserProfile'
 ASGI_APPLICATION = 'backend.asgi.application'
-
-# CHANNEL_LAYERS = {
-#         "default": {
-#             "BACKEND": "channels_redis.core.RedisChannelLayer",
-#             "CONFIG": {
-#                 "hosts": [("localhost", 6379)],
-#             },
-#         },
-#     }
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'doctor_app',
+        'NAME': 'doctor_booking',
         'USER': 'postgres',
         'PASSWORD':'12345',
         'HOST': 'localhost'
     }
 }
-
 
 
 # Password validation
@@ -211,27 +198,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
-
-
-
-
-
-
-
-AUTHENTICATION_BACKENDS = [
-    'doctor.backends.DoctorModelBackend',  # For doctors
-    'account.authentication.EmailModelBackend',  # For users
- 'django.contrib.auth.backends.ModelBackend',
-]
-#AUTH_USER_MODEL = 'account.User'
-AUTH_USER_MODEL = 'doctor.Doctor'
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
@@ -240,6 +211,9 @@ CORS_ALLOWED_ORIGINS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# STATIC_DIR = os.path.join(BASE_DIR, 'media')
-# STATIC_URL = '/media/'
-# STATICFILES_DIRS = [STATIC_DIR, ]
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST= 'smtp.gmail.com' 
+EMAIL_USE_TLS=True
+EMAIL_PORT=587
+EMAIL_HOST_USER='gadgetgalleryvalidation@gmail.com'
+EMAIL_HOST_PASSWORD='zjuocyqtpiwxugpv'

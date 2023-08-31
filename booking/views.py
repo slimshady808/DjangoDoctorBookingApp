@@ -8,17 +8,15 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.generics import ListCreateAPIView
 from .models import Booking,Payment
 from .serializers import BookingSerializer,PaymentSerializer
-from account.models import User,Patient
 from django.shortcuts import get_object_or_404
 from django.db.models import F
+from doctor.models import Doctor
+from account.models import UserProfile,Patient
 import json
 import jwt
 import environ
 import razorpay
 from django.utils import timezone
-
-# Create your views here.
-
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -27,11 +25,6 @@ def getRoutes(request):
         'booking/create'
     ]
     return Response(routes)
-
-# class BookingCreateView(CreateAPIView):
-
-#     queryset = Booking.objects.all()
-#     serializer_class = BookingSerializer
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -65,9 +58,6 @@ class BookingCreateView(CreateAPIView):
         
         # Continue with your view logic
         return super().post(request, *args, **kwargs)
-
-
-
 
 
 env = environ.Env()
@@ -190,49 +180,13 @@ def handle_payment_success(request):
     return Response(res_data)
 
 
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Booking
-from doctor.models import Doctor
-
-
-# class DoctorPendingPaidBookings(APIView):
-#     def get(self, request, doctor_id, format=None):
-#         try:
-#             # Fetch the doctor based on the given doctor_id
-#             doctor = Doctor.objects.get(id=doctor_id)
-            
-#             # Fetch bookings with status 'pending'
-#             pending_bookings = Booking.objects.filter(doctor=doctor, status='pending')
-            
-#             # Fetch payment ids where isPaid is True
-#             paid_payment_ids = Booking.objects.filter(payment__isPaid=True).values_list('payment__id', flat=True)
-            
-#             # Filter pending bookings with paid payments
-#             bookings_with_paid_payments = pending_bookings.filter(payment__id__in=paid_payment_ids)
-            
-#             # Prepare data to send in response
-#             response_data = []
-#             for booking in bookings_with_paid_payments:
-#                 response_data.append({
-#                     'slot_time': booking.slot.time,
-#                     'slot_date': booking.slot.date,
-#                     'patient_name': booking.patient_id.name,
-#                     'doctor_name': booking.doctor.doctor_name,
-#                 })
-            
-#             return Response(response_data, status=status.HTTP_200_OK)
-        
-#         except Doctor.DoesNotExist:
-#             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
-
 class DoctorPendingPaidBookings(APIView):
     def get(self, request, doctor_id, format=None):
         try:
+            
+            user=UserProfile.objects.get(id=doctor_id)
             # Fetch the doctor based on the given doctor_id
-            doctor = Doctor.objects.get(id=doctor_id)
+            doctor = Doctor.objects.get(user_profile=user)
             
             # Fetch bookings with status 'pending'
             pending_bookings = Booking.objects.filter(doctor=doctor, status='pending')
@@ -264,13 +218,22 @@ class DoctorPendingPaidBookings(APIView):
         except Doctor.DoesNotExist:
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
+class Doctorid(APIView):
+    def get(self, request, doctor_id, format=None):
+        user=UserProfile.objects.get(id=doctor_id)
+        doctor=Doctor.objects.get(user_profile=user)
+        print(doctor.id)
+        pending_bookings = Booking.objects.filter(doctor=doctor, status='pending')
+        print(pending_bookings)
+        return Response({"id":doctor_id})
 
 
 class DoctorBookingHistory(APIView):
     def get(self,request,doctor_id):
         try:
-            #fetching doctor object for that doctor_id
-            doctor=Doctor.objects.get(id=doctor_id)
+            user=UserProfile.objects.get(id=doctor_id)
+            # Fetch the doctor based on the given doctor_id
+            doctor = Doctor.objects.get(user_profile=user)
 
             #bookings for that doctor
             booking=Booking.objects.filter(doctor=doctor)
@@ -295,33 +258,20 @@ class DoctorBookingHistory(APIView):
                     'patient_age':booking.patient_id.age,
                     'booking_status':booking.status,
                     'patient_id':booking.patient_id.id,
-                    'user_id':booking.patient_id.user.id
+                    'user_id':booking.patient_id.user_profile.id
 
                 })
             return Response(response_data, status=status.HTTP_200_OK)
         except Doctor.DoesNotExist:
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
 
 class UserBookingListView(APIView):
-    def get(self,request):
-        authorization_header = request.META.get('HTTP_AUTHORIZATION', '')
-        if authorization_header.startswith('Bearer '):
-            token = authorization_header.split(' ')[1]
-        else:
-            token = ''
-        try:
-            decoded_payload = jwt.decode(token, 'django-insecure-)e43mqlk!jejac#fplw)pm=j4_ihu)i*6c3zzn4+m7l^55c$1z', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            return Response({'error': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
-        except jwt.DecodeError:
-            return Response({'error': 'Token decoding error'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = decoded_payload.get('user_id', None)
-        print(user_id)
-        if user_id is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        patients = Patient.objects.filter(user_id=user_id)
-        user_bookings = Booking.objects.filter(patient_id__in=patients).select_related(
+    def get(self, request,user_id):
+        patients=Patient.objects.filter(user_profile=user_id)
+        
+        user_bookings=Booking.objects.filter(patient_id__in=patients).select_related(
             'doctor','slot','patient'
         ).annotate(
             doctor_name=F('doctor__doctor_name'),
@@ -338,11 +288,4 @@ class UserBookingListView(APIView):
         
 
         return Response({'user_bookings': user_bookings}, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-    
+         

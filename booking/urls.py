@@ -9,6 +9,6 @@ urlpatterns = [
     path('payment/success/', views.handle_payment_success, name="payment_success"),
     path('pending-booking/<int:doctor_id>/',views.DoctorPendingPaidBookings.as_view(),name='pending-booking'),
     path('booking-history/<int:doctor_id>/',views.DoctorBookingHistory.as_view(),name='booking_history'),
-    path('user-booking-history/',views.UserBookingListView.as_view(),name='user-booking_history')
-
+    path('user-booking-history/<int:user_id>/',views.UserBookingListView.as_view(),name='user-booking_history'),
+    path('doc/',views.Doctorid.as_view(),name="doctorid")
 ]

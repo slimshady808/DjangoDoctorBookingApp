@@ -10,8 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import  login
 from .models import Doctor,Department,Address,Slot
-from .serializers import DoctorSerializer,DepartmentSerializer,AddressSerializer,QualificationSerializer,SlotSerializer
-from .backends import DoctorModelBackend
+from .serializers import DoctorSerializer,DepartmentSerializer,AddressSerializer,QualificationSerializer,SlotSerializer,DoctorRegistrationSerializer
+from account.serializers import UserProfileSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -20,126 +20,28 @@ from django.http import JsonResponse
 from .models import Department, Qualification
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.utils import timezone
+from django.db import transaction
+from account.models import UserProfile
 # Create your views here.
-User = get_user_model()
 
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
-        'doctor/login',
-        'doctor/register'
+        'api/token',
+        'api/token/refresh'
     ]
     return Response(routes)
 
-
-
-
-class DoctorRegistrationView(APIView):
-    def post(self, request):
-        serializer = DoctorSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Hash the password before saving the doctor
-        password = request.data['password']
-        hashed_password = make_password(password)
-        serializer.save(password=hashed_password)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-class DoctorLoginView(APIView):
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        doctor = DoctorModelBackend().authenticate(request, email=email, password=password)
-        if doctor is not None:
-            login(request, doctor)
-            refresh = RefreshToken.for_user(doctor)
-         
-            # Customize the access token by adding custom claims
-            access_token = refresh.access_token
-            access_token_dict = access_token.payload
-            
-            # Add custom claims to the access token dictionary
-            print(doctor.doctor_name)
-            print( doctor.email)
-            print( doctor.is_staff)
-            access_token_dict['doctor_name'] = doctor.doctor_name
-            access_token_dict['email'] = doctor.email
-            access_token_dict['is_staff'] = doctor.is_staff
-
-            # access_token = str(refresh.access_token)
-            # refresh_token = str(refresh)
-            return Response({'access': str(access_token), 'refresh': str(refresh)}, status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
-
-
-
-class MyTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        # Get the refresh token from the request data
-        refresh_token = request.data.get("refresh")
-
-        # Attempt to verify the refresh token
-        try:
-            refresh_token = RefreshToken(refresh_token)
-            refresh_token_payload = refresh_token.payload
-        except Exception as e:
-            return Response({"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Get the user from the payload of the original access token
-        user_id = refresh_token_payload.get("user_id")
-        user = get_user_model().objects.filter(id=user_id).first()
-
-        if user:
-            # Add custom claims to the new access token payload
-            new_refresh = refresh_token.access_token
-            new_refresh_payload = new_refresh.payload
-            new_refresh_payload["doctor_name"] = user.doctor_name
-            new_refresh_payload["email"] = user.email
-            new_refresh_payload["is_staff"] = user.is_staff
-
-            # Return the new access token and refresh token
-            return Response(
-                {"access": str(new_refresh), "refresh": str(refresh_token)},
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
-# class MyTokenRefreshView(TokenRefreshView):
-#     def get_serializer(self, *args, **kwargs):
-#         # Get the default serializer
-#         serializer = super().get_serializer(*args, **kwargs)
-
-#         # Get the user from the context
-#         user = self.request.user
-
-#         # Add custom claims to the new access token dictionary
-#         # serializer.payload['doctor_name'] = user.doctor_name
-#         # serializer.payload['email'] = user.email
-#         # serializer.payload['is_staff'] = user.is_staff
-
-#         return serializer
-
-# @api_view(['POST'])
-# def refresh_access_token(request):
-#     try:
-#         refresh_token = request.data['refresh']
-#         print(refresh_token)
-#         refresh_view = TokenRefreshView.as_view()
-#         response = refresh_view(request=request)
-#         return Response(response.data, status=response.status_code)
-#     except Exception as e:
-#         return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-
+# class DoctorRegistrationView(APIView):
+#     def post(self,request):
+#         print(request.data,'datas')
+#         serializer=DoctorSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         # Hash the password before saving the doctor
+#         password= request.data['password']
+#         hashed_password=make_password(password)
+#         serializer.save(password=hashed_password)
+#         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
 class Departments(APIView):
     def get (self,request):
@@ -153,38 +55,181 @@ class Qualifications(APIView):
 
         serializer =QualificationSerializer(qualifications,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)   
+    
 
 
+# class DoctorList(APIView):
+#     def get(self, request):
+#         doctors = UserProfile.objects.filter(user_type='doctor')
+#         serializer = UserProfileSerializer(doctors, many=True)  # Use UserProfileSerializer
+#         data = serializer.data
 
+#         for doctor in data:
+#             # Access additional details using doctor['field_name']
+#             department_id = doctor['doctor_profile']['doctor_department']
+#             department = Department.objects.get(id=department_id)
+#             doctor['department_name'] = department.name
 
+#         return Response(data, status=status.HTTP_200_OK)
+    
 class DoctorList(APIView):
-    def get(self, request):
-        doctors = Doctor.objects.all()
-        serializer = DoctorSerializer(doctors,many=True)
+    def get(self,request):
+        print('hii')
+        doctors=Doctor.objects.all()
+        serializer=DoctorSerializer(doctors,many=True)
         data=serializer.data
 
         for doctor in data:
             department_id=doctor['doctor_department']
             department=Department.objects.get(id=department_id)
             doctor['department_name']=department.name
-
         
-        return Response(data, status=status.HTTP_200_OK)
-    
+        return Response (serializer.data,status=status.HTTP_200_OK)
 
+
+
+# class DoctorRegisterationView(APIView):
+#     def post(self,request):
+      
+#         doctor_data={
+#             "doctor_name": request.data.get("doctor_name"),
+#             "doctor_image":request.data.get("doctor_image"),
+#             "doctor_department": request.data.get("doctor_department"),
+#             "qualification": request.data.get("qualification"),
+#             "phone": request.data.get("phone"),
+#             "fee": request.data.get("fee"),
+#             "more_details": request.data.get("more_details"),
+#             "address": request.data.get("address"),
+#         }
+
+#         user_data={
+#             "username": request.data.get("username"),
+#             "email":request.data.get("email"),
+#             "password":make_password(request.data.get("password")),
+#             "user_type":"doctor",
+#         }
+
+#         with transaction.atomic():
+#             #create the UserProfile instance first
+#             user_serializer=UserProfileSerializer(data=user_data)
+#             user_serializer.is_valid(raise_exception=True)
+#             user_instance=user_serializer.save()
+            
+#             #Associate the user_profile instance with doctor_data
+#             doctor_data["user_profile"]=user_instance.id
+
+#             #create the Doctor Instance
+
+#             doctor_serializer=DoctorSerializer(data=doctor_data)
+            
+#             doctor_serializer.is_valid(raise_exception=True)
+
+#             doctor_instance=doctor_serializer.save()
+        
+#         return Response(
+#             {"user_profile":user_serializer.data,"doctor":doctor_serializer.data},
+#             status=status.HTTP_201_CREATED
+#         )
     
+# class DoctorRegisterationView(APIView):
+#     def post(self, request):
+#         doctor_data = {
+#             "doctor_name": request.data.get("doctor_name"),
+#             "doctor_image": request.data.get("doctor_image"),
+#             "doctor_department": request.data.get("doctor_department"),
+#             "qualification": request.data.get("qualification"),
+#             "phone": request.data.get("phone"),
+#             "fee": request.data.get("fee"),
+#             "more_details": request.data.get("more_details"),
+#             "address": request.data.get("address"),
+            
+#         }
+
+#         user_data = {
+#             "username": request.data.get("username"),
+#             "email": request.data.get("email"),
+#             "password": make_password(request.data.get("password")),
+#             "user_type": "doctor",
+#         }
+
+#         with transaction.atomic():
+#             # Create the UserProfile instance first
+#             user_serializer = UserProfileSerializer(data=user_data)
+#             user_serializer.is_valid(raise_exception=True)
+#             user_instance = user_serializer.save()
+
+#             # Associate the user_profile instance with doctor_data
+#             print('user instance',user_instance.id)
+#             # doctor_data["user_profile"] = user_instance.id
+
+#             # Create the Doctor Instance
+#             doctor_serializer = DoctorSerializer(data=doctor_data)
+#             doctor_serializer.is_valid(raise_exception=True)
+#             doctor_instance = doctor_serializer.save()
+
+#         return Response(
+#             {"user_profile": user_serializer.data, "doctor": doctor_serializer.data},
+#             status=status.HTTP_201_CREATED
+#         )
+
+@api_view(['POST'])
+def register_doctor(request):
+    if request.method == 'POST':
+        serializer = DoctorRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    # Extract data from the serializer
+                    email = serializer.validated_data['email']
+                    password = serializer.validated_data['password']
+                    doctor_name = serializer.validated_data['doctor_name']
+                    doctor_image = serializer.validated_data['doctor_image']
+                    doctor_department = serializer.validated_data['doctor_department']
+                    qualification = serializer.validated_data['qualification']
+                    phone = serializer.validated_data['phone']
+                    fee = serializer.validated_data['fee']
+                    more_details = serializer.validated_data['more_details']
+                    address = serializer.validated_data['address']
+                    username = serializer.validated_data['username']
+                    
+                    # Create a user profile with user_type 'doctor'
+                    user_profile = UserProfile.objects.create_user(
+                        email=email,
+                        user_type='doctor',
+                        password=password,
+                        username=username
+                    )
+                    
+                    # Create the doctor using the associated user profile
+                    doctor = Doctor.objects.create(
+                        user_profile=user_profile,
+                        doctor_name=doctor_name,
+                        doctor_image=doctor_image,
+                        doctor_department=doctor_department,
+                        qualification=qualification,
+                        phone=phone,
+                        fee=fee,
+                        more_details=more_details,
+                        address=address
+                    )
+                    
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
-def get_doctors_by_department(request, department_id):
+def get_doctors_by_department(request,department_id):
     try:
-        doctors = Doctor.objects.filter(doctor_department=department_id)
-        serializer = DoctorSerializer(doctors, many=True)
+        doctors=Doctor.objects.filter(doctor_department=department_id)
+        serializer=DoctorSerializer(doctors,many=True)
         data=serializer.data
 
-        department = Department.objects.get(id=department_id)
-        department_name = department.name
+        department=Department.objects.get(id=department_id)
+        department_name=department.name
         for doctor in data:
             doctor['department_name']=department_name
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK) 
     except Doctor.DoesNotExist:
         return Response({'detail': "Department not found"}, status=status.HTTP_404_NOT_FOUND)
     
@@ -201,7 +246,7 @@ class DoctorListView(ListAPIView):
         if department_id:
             queryset=queryset.filter(doctor_department_id=department_id)
         return queryset
-
+    
 class DoctorDetailView(RetrieveUpdateAPIView):
     queryset=Doctor.objects.all()
     serializer_class=DoctorSerializer
@@ -209,6 +254,7 @@ class DoctorDetailView(RetrieveUpdateAPIView):
 class AddressDetailView(RetrieveUpdateAPIView):
     queryset=Address.objects.all()
     serializer_class=AddressSerializer
+
 
 class AddressCreateView(APIView):
     def post(self,request):
@@ -218,7 +264,7 @@ class AddressCreateView(APIView):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response (serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
+    
 @api_view(['GET'])  
 def department_byId(request,department_id):
     try:
@@ -227,6 +273,7 @@ def department_byId(request,department_id):
         return Response(serializer.data,status=status.HTTP_200_OK)
     except Department.DoesNotExist:
         return Response({'detail':"Department not found"},status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def qualification_ById(request,qualification_id):
@@ -245,8 +292,7 @@ def get_available_dates(request, doctor_id):
         return Response({'available_dates': available_dates}, status=status.HTTP_200_OK)
     except Doctor.DoesNotExist:
         return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
+    
 
 @api_view(['GET'])
 def get_available_slots(request, doctor_id):

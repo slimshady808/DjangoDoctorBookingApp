@@ -1,14 +1,7 @@
-# chat/serializers.py
-
 from rest_framework import serializers
-from .models import UserToDoctorMessage, DoctorToUserMessage
+from .models import Message
 
-class UserToDoctorMessageSerializer(serializers.ModelSerializer):
+class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserToDoctorMessage
-        fields = '__all__'
-
-class DoctorToUserMessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DoctorToUserMessage
+        model = Message
         fields = '__all__'
