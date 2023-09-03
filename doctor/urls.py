@@ -21,4 +21,7 @@ urlpatterns = [
     path('get_available_dates/<int:doctor_id>/', views.get_available_dates, name='get_available_dates'),
     path('get_available_slots/<int:doctor_id>/',views.get_available_slots,name='get_available_slots'),
     path('slot/<int:slotId>/',views.get_date_and_time,name='slot_by_id'),
+    path('slot/create/',views.SlotCreateView.as_view(),name='create-slot'),
+    path('slot-list/<int:doctor_id>/',views.DoctorAvailableSlotsView.as_view(),name='slot-list'),
+    path('slot-delete/<int:slot_id>/',views.SlotDelete.as_view(),name='delete-slot')
 ]

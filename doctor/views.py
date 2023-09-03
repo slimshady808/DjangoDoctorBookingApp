@@ -21,6 +21,8 @@ from .models import Department, Qualification
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.utils import timezone
 from django.db import transaction
+from rest_framework.exceptions import NotFound
+
 from account.models import UserProfile
 # Create your views here.
 
@@ -258,12 +260,33 @@ class AddressDetailView(RetrieveUpdateAPIView):
 
 class AddressCreateView(APIView):
     def post(self,request):
-        print(request.data,'new')
+     
         serializer=AddressSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response (serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+class SlotCreateView(APIView):
+    def post(self,request):
+    
+        doc_id=request.data['doctor']
+        try:
+            user=UserProfile.objects.get(id=doc_id)
+        except UserProfile.DoesNotExist:
+            raise NotFound("User profile not found")
+        try:
+            doctor=Doctor.objects.get(user_profile=user)
+        except Doctor.DoesNotExist:
+            raise NotFound("Doctor not found")
+
+        request.data['doctor']=doctor.id
+        serializer=SlotSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])  
 def department_byId(request,department_id):
@@ -331,3 +354,28 @@ def get_date_and_time(request, slotId):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Slot.DoesNotExist:
         return Response({'error': 'slot does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DoctorAvailableSlotsView(APIView):
+    def get(self, request, doctor_id):
+        try:
+            user=UserProfile.objects.get(id=doctor_id)
+            doctor=Doctor.objects.get(user_profile=user)
+
+            slots = Slot.objects.filter(doctor=doctor.id, is_available=True)
+            sorted_slots=slots.order_by('date','time')
+            serializer = SlotSerializer(sorted_slots, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class SlotDelete(APIView):
+    def delete(self,request,slot_id):
+        try:
+            slot=Slot.objects.get(id=slot_id)
+            slot.delete()
+        except Slot.DoesNotExist:
+            return Response ({'data':"slot is not exist"},status=status.HTTP_404_NOT_FOUND)
+        return Response({'data':'deleted'},status=status.HTTP_204_NO_CONTENT)
+        
