@@ -24,10 +24,11 @@ class SlotSerializer(serializers.ModelSerializer):
         fields = ['id', 'time', 'date', 'is_available', 'doctor', 'doctor_name']
 
 class DoctorSerializer(serializers.ModelSerializer):
-    user_profile_id = serializers.PrimaryKeyRelatedField(source='user_profile', read_only=True)
+    #user_profile_id = serializers.PrimaryKeyRelatedField(source='user_profile', read_only=True)
     class Meta:
         model = Doctor
-        fields = ('id','doctor_image', 'doctor_name', 'doctor_department', 'qualification', 'phone', 'fee', 'more_details', 'address', 'is_active', 'is_staff', 'user_profile_id')
+        #fields = ('id','doctor_image', 'doctor_name', 'doctor_department', 'qualification', 'phone', 'fee', 'more_details', 'address', 'is_active', 'is_staff', 'user_profile_id')
+        fields='__all__'
 
 
 # class DoctorSerializer(serializers.ModelSerializer):

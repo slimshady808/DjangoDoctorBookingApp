@@ -11,4 +11,6 @@ def send_otp_via_email(email,otp):
     email_from=settings.EMAIL_HOST
     send_mail(subject,message,email_from,[email])
     
-    
+def send_email_forgot_password(subject,message,recipient_list):
+    email_from=settings.EMAIL_HOST
+    send_mail(subject,message,email_from,recipient_list)

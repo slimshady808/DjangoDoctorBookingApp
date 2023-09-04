@@ -133,92 +133,57 @@ class DoctorList(APIView):
 #             status=status.HTTP_201_CREATED
 #         )
     
-# class DoctorRegisterationView(APIView):
-#     def post(self, request):
-#         doctor_data = {
-#             "doctor_name": request.data.get("doctor_name"),
-#             "doctor_image": request.data.get("doctor_image"),
-#             "doctor_department": request.data.get("doctor_department"),
-#             "qualification": request.data.get("qualification"),
-#             "phone": request.data.get("phone"),
-#             "fee": request.data.get("fee"),
-#             "more_details": request.data.get("more_details"),
-#             "address": request.data.get("address"),
+class DoctorRegisterationView(APIView):
+    def post(self, request):
+        doctor_data = {
+            "doctor_name": request.data.get("doctor_name"),
+            "doctor_image": request.data.get("doctor_image"),
+            "doctor_department": request.data.get("doctor_department"),
+            "qualification": request.data.get("qualification"),
+            "phone": request.data.get("phone"),
+            "fee": request.data.get("fee"),
+            "more_details": request.data.get("more_details"),
+            "address": request.data.get("address"),
             
-#         }
+        }
 
-#         user_data = {
-#             "username": request.data.get("username"),
-#             "email": request.data.get("email"),
-#             "password": make_password(request.data.get("password")),
-#             "user_type": "doctor",
-#         }
+        user_data = {
+            "username": request.data.get("username"),
+            "email": request.data.get("email"),
+            "password": make_password(request.data.get("password")),
+            "user_type": "doctor",
+        }
 
-#         with transaction.atomic():
-#             # Create the UserProfile instance first
-#             user_serializer = UserProfileSerializer(data=user_data)
-#             user_serializer.is_valid(raise_exception=True)
-#             user_instance = user_serializer.save()
+        with transaction.atomic():
+            # doct={"email":"ak@gmail.com","username":"akshhu","password":"12345","doctor_name":"akku","doctor_department":1,"qualification":2,"phone":"12345678","fee":900,"more_details":"good","address":2}
+            # Create the UserProfile instance first
+            user_serializer = UserProfileSerializer(data=user_data)
+            user_serializer.is_valid(raise_exception=True)
+            user_instance = user_serializer.save()
 
-#             # Associate the user_profile instance with doctor_data
-#             print('user instance',user_instance.id)
-#             # doctor_data["user_profile"] = user_instance.id
+            # Associate the user_profile instance with doctor_data
+            print('user instance',user_instance.id)
+            doctor_data["user_profile"] = user_instance.id
+            print (doctor_data)
+            # Create the Doctor Instance
+            doctor_serializer = DoctorSerializer(data=doctor_data)
+            doctor_serializer.is_valid(raise_exception=True)
+            doctor_instance = doctor_serializer.save()
 
-#             # Create the Doctor Instance
-#             doctor_serializer = DoctorSerializer(data=doctor_data)
-#             doctor_serializer.is_valid(raise_exception=True)
-#             doctor_instance = doctor_serializer.save()
-
-#         return Response(
-#             {"user_profile": user_serializer.data, "doctor": doctor_serializer.data},
-#             status=status.HTTP_201_CREATED
-#         )
-
+        return Response(
+            {"user_profile": user_serializer.data, "doctor": doctor_serializer.data},
+            status=status.HTTP_201_CREATED
+        )
 @api_view(['POST'])
 def register_doctor(request):
-    if request.method == 'POST':
-        serializer = DoctorRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    # Extract data from the serializer
-                    email = serializer.validated_data['email']
-                    password = serializer.validated_data['password']
-                    doctor_name = serializer.validated_data['doctor_name']
-                    doctor_image = serializer.validated_data['doctor_image']
-                    doctor_department = serializer.validated_data['doctor_department']
-                    qualification = serializer.validated_data['qualification']
-                    phone = serializer.validated_data['phone']
-                    fee = serializer.validated_data['fee']
-                    more_details = serializer.validated_data['more_details']
-                    address = serializer.validated_data['address']
-                    username = serializer.validated_data['username']
-                    
-                    # Create a user profile with user_type 'doctor'
-                    user_profile = UserProfile.objects.create_user(
-                        email=email,
-                        user_type='doctor',
-                        password=password,
-                        username=username
-                    )
-                    
-                    # Create the doctor using the associated user profile
-                    doctor = Doctor.objects.create(
-                        user_profile=user_profile,
-                        doctor_name=doctor_name,
-                        doctor_image=doctor_image,
-                        doctor_department=doctor_department,
-                        qualification=qualification,
-                        phone=phone,
-                        fee=fee,
-                        more_details=more_details,
-                        address=address
-                    )
-                    
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    doc={"doctor_name": "akku", "doctor_image": None, "doctor_department": 1, "qualification": 2, "phone": "12345678", "fee": 900, "more_details": "good", "address": 2, "user_profile": 49}
+    serializer=DoctorSerializer(data=doc)
+    if serializer.is_valid():
+        serializer.save()
+        print('saved')
+        return Response(serializer.data)
+    return Response("error")
+
 
 @api_view(['GET'])
 def get_doctors_by_department(request,department_id):

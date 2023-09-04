@@ -47,10 +47,11 @@ INSTALLED_APPS = [
     'chat',
 
     'rest_framework',
+    
     'rest_framework_simplejwt',
     'corsheaders',
 ]
-
+ASGI_APPLICATION = 'backend.asgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -141,7 +142,7 @@ TEMPLATES = [
 
 # WSGI_APPLICATION = 'backend.wsgi.application'
 AUTH_USER_MODEL = 'account.UserProfile'
-ASGI_APPLICATION = 'backend.asgi.application'
+
 
 CHANNEL_LAYERS = {
     "default": {

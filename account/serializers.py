@@ -13,3 +13,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ('id','username', 'email', 'user_type', 'is_active', 'is_staff', 'image_of_user', 'patient_profile')
         read_only_fields = ('id', 'is_staff')
+
+class ResetPasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=128, write_only=True)
+    new_password = serializers.CharField(max_length=128, write_only=True)
