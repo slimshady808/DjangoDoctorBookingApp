@@ -16,7 +16,7 @@ from .serializers import ResetPasswordSerializer
 from .serializers import UserProfileSerializer,PatientSerializer
 from .models import UserProfile,Patient
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
+from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError,force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -94,9 +94,9 @@ class ResetPasswordView(APIView):
             except jwt.DecodeError:
                 return Response({'error':'invalid token'},status=status.HTTP_401_UNAUTHORIZED)
             
-            user_role=payload.get('role')
-            if user_role != 'doctor':
-                return Response({'erorr':'user is not a doctor'},status=status.HTTP_403_FORBIDDEN)
+            # user_role=payload.get('role')
+            # if user_role != 'doctor':
+            #     return Response({'erorr':'user is not a doctor'},status=status.HTTP_403_FORBIDDEN)
             
             user_id = payload.get('user_id')
 
@@ -129,10 +129,11 @@ def ForgotPassword(request):
     #Encode the user's email and token for the reset link
     uidb64=urlsafe_base64_encode(force_bytes(user.pk))
   
+    reset_link = f'http://localhost:5173/reset-password/{uidb64}/{token}/'
 
     #Build the reset link URL
-    reset_link= reverse('password_reset_confirm',kwargs={'uidb64':uidb64,'token':token})
-    reset_link=f'http://{get_current_site(request).domain}{reset_link}'
+    # reset_link= reverse('password_reset_confirm',kwargs={'uidb64':uidb64,'token':token})
+    # reset_link=f'http://{get_current_site(request).domain}{reset_link}'
 
     #send a password reset email
 
@@ -145,9 +146,31 @@ def ForgotPassword(request):
         return Response({"status": 200, "message": "Password reset link sent successfully"})
     except Exception as e:
         return Response({"status": 500, "message": "An error occurred while sending the reset link"})
-    
 
-            
+@api_view(['POST'])
+def reset_password(request):
+    uidb64=request.data.get('uidb64')
+    token= request.data.get('token')
+    new_password=request.data.get('password')
+
+    try:
+        uid=force_str(urlsafe_base64_decode(uidb64))
+        user=UserProfile.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, UserProfile.DoesNotExist):
+        user=None
+
+    if user is not None and PasswordResetTokenGenerator().check_token(user,token):
+        user.set_password(new_password)
+        user.save()
+        return Response({"status": 200, "message": "Password reset successfully"})
+    
+    return Response({"status": 400, "message": "Invalid reset link"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view()
+def new_view(request):
+    print('hi i ma here')
+    return Response('i am done')
 
 
 @api_view(['GET'])
