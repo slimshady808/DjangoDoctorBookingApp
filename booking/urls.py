@@ -10,5 +10,7 @@ urlpatterns = [
     path('pending-booking/<int:doctor_id>/',views.DoctorPendingPaidBookings.as_view(),name='pending-booking'),
     path('booking-history/<int:doctor_id>/',views.DoctorBookingHistory.as_view(),name='booking_history'),
     path('user-booking-history/<int:user_id>/',views.UserBookingListView.as_view(),name='user-booking_history'),
-    path('doc/',views.Doctorid.as_view(),name="doctorid")
+    path('doc/<int:doctor_id>',views.Doctorid.as_view(),name="doctorid"),
+    path('all-bookings/',views.AllBookingListView.as_view(),name='all-booking')
+
 ]

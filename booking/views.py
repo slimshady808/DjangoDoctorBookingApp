@@ -291,3 +291,21 @@ class UserBookingListView(APIView):
 
         return Response({'user_bookings': user_bookings}, status=status.HTTP_200_OK)
          
+class AllBookingListView(APIView):
+    def get(self,request):
+
+        all_bookings=Booking.objects.all().select_related(
+            'doctor','slot','patient'
+        ).annotate(
+            doctor_name=F('doctor__doctor_name'),
+            doctor_image=F('doctor__doctor_image'),
+            slot_date=F('slot__date'),
+            slot_time=F('slot__time'),
+            patient_name=F('patient_id__name'), 
+            payment_status=F('status'),
+            is_paid=F('payment__isPaid')
+        ).values(
+            'booking_id', 'doctor_name', 'doctor_image', 'slot_date', 'slot_time', 'patient_name', 'payment_status', 'is_paid'
+        ).order_by('-slot_date', 'slot_time')
+        
+        return Response(all_bookings, status=status.HTTP_200_OK)

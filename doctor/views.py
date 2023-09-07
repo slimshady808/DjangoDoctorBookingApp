@@ -59,7 +59,7 @@ class DoctorList(APIView):
         doctors=Doctor.objects.all()
         serializer=DoctorSerializer(doctors,many=True)
         data=serializer.data
-
+       
         for doctor in data:
             department_id=doctor['doctor_department']
             department=Department.objects.get(id=department_id)
@@ -67,6 +67,7 @@ class DoctorList(APIView):
             user=UserProfile.objects.get(id=user_id)
             doctor['department_name']=department.name
             doctor['email']=user.email
+            doctor['user_active']=user.is_active
         
         return Response (serializer.data,status=status.HTTP_200_OK)
 

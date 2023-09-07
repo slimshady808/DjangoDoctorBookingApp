@@ -81,7 +81,7 @@ class OTPVerification(APIView):
                 "message":"invalid OTP or email"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-class ResetPasswordView(APIView):
+class ChangePasswordView(APIView):
     def post(self,request):
         serializer=ResetPasswordSerializer(data=request.data)
 
@@ -193,4 +193,19 @@ class PatientCreateView(CreateAPIView):
     queryset=Patient.objects.all()
     serializer_class=PatientSerializer
 
+
+class BlockUserView(APIView):
+    def post(self, request, user_id):
+        try:
+            user = UserProfile.objects.get(id=user_id)
+            user.is_active = not user.is_active
+            user.save()
+            print(user.is_active)
+            serializer = UserProfileSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {"error": f"User with ID {user_id} does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
     
