@@ -208,4 +208,4 @@ class BlockUserView(APIView):
                 {"error": f"User with ID {user_id} does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-    
+
