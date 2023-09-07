@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from django.utils import timezone
 from django.db import transaction
 from rest_framework.exceptions import NotFound
+from django.shortcuts import get_object_or_404
 
 from account.models import UserProfile
 # Create your views here.
@@ -34,16 +35,7 @@ def getRoutes(request):
     ]
     return Response(routes)
 
-# class DoctorRegistrationView(APIView):
-#     def post(self,request):
-#         print(request.data,'datas')
-#         serializer=DoctorSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         # Hash the password before saving the doctor
-#         password= request.data['password']
-#         hashed_password=make_password(password)
-#         serializer.save(password=hashed_password)
-#         return Response(serializer.data,status=status.HTTP_201_CREATED)
+
 
 class Departments(APIView):
     def get (self,request):
@@ -60,23 +52,10 @@ class Qualifications(APIView):
     
 
 
-# class DoctorList(APIView):
-#     def get(self, request):
-#         doctors = UserProfile.objects.filter(user_type='doctor')
-#         serializer = UserProfileSerializer(doctors, many=True)  # Use UserProfileSerializer
-#         data = serializer.data
-
-#         for doctor in data:
-#             # Access additional details using doctor['field_name']
-#             department_id = doctor['doctor_profile']['doctor_department']
-#             department = Department.objects.get(id=department_id)
-#             doctor['department_name'] = department.name
-
-#         return Response(data, status=status.HTTP_200_OK)
     
 class DoctorList(APIView):
     def get(self,request):
-        print('hii')
+        
         doctors=Doctor.objects.all()
         serializer=DoctorSerializer(doctors,many=True)
         data=serializer.data
@@ -84,57 +63,20 @@ class DoctorList(APIView):
         for doctor in data:
             department_id=doctor['doctor_department']
             department=Department.objects.get(id=department_id)
+            user_id=doctor['user_profile']
+            user=UserProfile.objects.get(id=user_id)
             doctor['department_name']=department.name
+            doctor['email']=user.email
         
         return Response (serializer.data,status=status.HTTP_200_OK)
 
 
 
-# class DoctorRegisterationView(APIView):
-#     def post(self,request):
-      
-#         doctor_data={
-#             "doctor_name": request.data.get("doctor_name"),
-#             "doctor_image":request.data.get("doctor_image"),
-#             "doctor_department": request.data.get("doctor_department"),
-#             "qualification": request.data.get("qualification"),
-#             "phone": request.data.get("phone"),
-#             "fee": request.data.get("fee"),
-#             "more_details": request.data.get("more_details"),
-#             "address": request.data.get("address"),
-#         }
 
-#         user_data={
-#             "username": request.data.get("username"),
-#             "email":request.data.get("email"),
-#             "password":make_password(request.data.get("password")),
-#             "user_type":"doctor",
-#         }
-
-#         with transaction.atomic():
-#             #create the UserProfile instance first
-#             user_serializer=UserProfileSerializer(data=user_data)
-#             user_serializer.is_valid(raise_exception=True)
-#             user_instance=user_serializer.save()
-            
-#             #Associate the user_profile instance with doctor_data
-#             doctor_data["user_profile"]=user_instance.id
-
-#             #create the Doctor Instance
-
-#             doctor_serializer=DoctorSerializer(data=doctor_data)
-            
-#             doctor_serializer.is_valid(raise_exception=True)
-
-#             doctor_instance=doctor_serializer.save()
-        
-#         return Response(
-#             {"user_profile":user_serializer.data,"doctor":doctor_serializer.data},
-#             status=status.HTTP_201_CREATED
-#         )
     
 class DoctorRegisterationView(APIView):
     def post(self, request):
+        print(request.data)
         doctor_data = {
             "doctor_name": request.data.get("doctor_name"),
             "doctor_image": request.data.get("doctor_image"),
@@ -150,15 +92,17 @@ class DoctorRegisterationView(APIView):
         user_data = {
             "username": request.data.get("username"),
             "email": request.data.get("email"),
-            "password": make_password(request.data.get("password")),
+           
+            # "password": request.data.get("password"),
             "user_type": "doctor",
         }
 
         with transaction.atomic():
-            # doct={"email":"ak@gmail.com","username":"akshhu","password":"12345","doctor_name":"akku","doctor_department":1,"qualification":2,"phone":"12345678","fee":900,"more_details":"good","address":2}
-            # Create the UserProfile instance first
+           
             user_serializer = UserProfileSerializer(data=user_data)
             user_serializer.is_valid(raise_exception=True)
+            password=make_password('newpassword')
+            user_serializer.save(password=password)
             user_instance = user_serializer.save()
 
             # Associate the user_profile instance with doctor_data
@@ -174,15 +118,6 @@ class DoctorRegisterationView(APIView):
             {"user_profile": user_serializer.data, "doctor": doctor_serializer.data},
             status=status.HTTP_201_CREATED
         )
-@api_view(['POST'])
-def register_doctor(request):
-    doc={"doctor_name": "akku", "doctor_image": None, "doctor_department": 1, "qualification": 2, "phone": "12345678", "fee": 900, "more_details": "good", "address": 2, "user_profile": 49}
-    serializer=DoctorSerializer(data=doc)
-    if serializer.is_valid():
-        serializer.save()
-        print('saved')
-        return Response(serializer.data)
-    return Response("error")
 
 
 @api_view(['GET'])
@@ -343,4 +278,23 @@ class SlotDelete(APIView):
         except Slot.DoesNotExist:
             return Response ({'data':"slot is not exist"},status=status.HTTP_404_NOT_FOUND)
         return Response({'data':'deleted'},status=status.HTTP_204_NO_CONTENT)
-        
+
+@api_view(['GET'])
+def get_doctor_profile(request, doctor_id):
+   
+    user=UserProfile.objects.get(id=doctor_id)
+
+    doctor = get_object_or_404(Doctor, user_profile=user)
+
+    # Create a dictionary with the doctor's profile data
+    doctor_profile_data = {
+        'doctorName': doctor.doctor_name,
+        'doctorImage': doctor.doctor_image.url,
+        'department': doctor.doctor_department.name,
+        'qualification': doctor.qualification.title,
+        'fee': doctor.fee,
+        'phone': doctor.phone,
+        'address': str(doctor.address),
+    }
+
+    return Response(doctor_profile_data, status=status.HTTP_200_OK)

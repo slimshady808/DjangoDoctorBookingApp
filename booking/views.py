@@ -17,7 +17,7 @@ import jwt
 import environ
 import razorpay
 from django.utils import timezone
-
+from rest_framework.pagination import PageNumberPagination
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
@@ -229,6 +229,7 @@ class Doctorid(APIView):
 
 
 class DoctorBookingHistory(APIView):
+   
     def get(self,request,doctor_id):
         try:
             user=UserProfile.objects.get(id=doctor_id)
@@ -268,6 +269,7 @@ class DoctorBookingHistory(APIView):
 
 
 class UserBookingListView(APIView):
+    
     def get(self, request,user_id):
         patients=Patient.objects.filter(user_profile=user_id)
         

@@ -7,8 +7,12 @@ urlpatterns = [
     path('qualifications/',views.Qualifications.as_view(),name='qualifications'),
     path('departments/', views.Departments.as_view(), name='departments'),
     path('list/', views.DoctorList.as_view(), name='doctor-profile'),
-    #path('register/',views.DoctorRegisterationView.as_view(),name="doctor-register"),
-   path('register/',views.register_doctor,name="doctor-register"),
+
+
+    path('register/',views.DoctorRegisterationView.as_view(),name="doctor-register"),
+#    path('register/',views.register_doctor,name="doctor-register"),
+
+
     path('doctors_by_department/<int:department_id>/', views.get_doctors_by_department, name='doctors_by_department'),
     path('doctors/',views.DoctorListView.as_view(),name='doctors-list'),
 
@@ -23,5 +27,6 @@ urlpatterns = [
     path('slot/<int:slotId>/',views.get_date_and_time,name='slot_by_id'),
     path('slot/create/',views.SlotCreateView.as_view(),name='create-slot'),
     path('slot-list/<int:doctor_id>/',views.DoctorAvailableSlotsView.as_view(),name='slot-list'),
-    path('slot-delete/<int:slot_id>/',views.SlotDelete.as_view(),name='delete-slot')
+    path('slot-delete/<int:slot_id>/',views.SlotDelete.as_view(),name='delete-slot'),
+    path('get-doctor-profile/<int:doctor_id>/',views.get_doctor_profile,name='doctor-profile')
 ]
