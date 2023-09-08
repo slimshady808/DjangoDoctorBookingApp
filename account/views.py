@@ -26,7 +26,10 @@ from django.urls import reverse
 def getRoutes(request):
     routes = [
         'api/token',
-        'api/token/refresh'
+        'api/token/refresh',
+        'api/refresh',
+        'api/verify-otp/',
+        'api/user-list/',
     ]
     return Response(routes)
 
