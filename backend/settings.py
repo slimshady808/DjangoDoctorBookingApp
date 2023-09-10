@@ -19,7 +19,7 @@ SECRET_KEY=os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['51.20.3.40','doctor.gadgetgallery.online']
 
 
 # Application definition
@@ -214,7 +214,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-    #  'https://doctime.netlify.app'
+    'https://doctime.netlify.app'
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -228,7 +228,7 @@ EMAIL_HOST_USER=os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD= os.environ.get('EMAIL_HOST_PASSWORD')
 
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
