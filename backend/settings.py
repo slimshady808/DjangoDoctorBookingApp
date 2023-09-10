@@ -214,7 +214,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-    'https://doctime.netlify.app/'
+    #  'https://doctime.netlify.app'
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

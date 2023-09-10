@@ -18,6 +18,8 @@ import environ
 import razorpay
 from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
+from dotenv import load_dotenv
+load_dotenv()
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
@@ -79,9 +81,9 @@ def start_payment(request):
     except Booking.DoesNotExist:
         return Response ({"error":"booking not found"},status=404)
     
-    
+ 
     # setup razorpay client this is the client to whome user is paying money that's you
-    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
+    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY_R')))
 
     # create razorpay order
     # the amount will come in 'paise' that means if we pass 50 amount will become
@@ -155,12 +157,12 @@ def handle_payment_success(request):
         'razorpay_signature': raz_signature
         }
     print("Verifying payment with data:", data)
-    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
+    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY_R')))
         # checking if the transaction is valid or not by passing above data dictionary in 
         # razorpay client if it is "valid" then check will return None
     print("Using Razorpay auth with keys:")
     print("PUBLIC_KEY:", env('PUBLIC_KEY'))
-    print("SECRET_KEY:", env('SECRET_KEY'))
+    print("SECRET_KEY:", env('SECRET_KEY_R'))
 
 
     check = client.utility.verify_payment_signature(data)

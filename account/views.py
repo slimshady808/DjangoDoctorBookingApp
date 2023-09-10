@@ -131,8 +131,10 @@ def ForgotPassword(request):
 
     #Encode the user's email and token for the reset link
     uidb64=urlsafe_base64_encode(force_bytes(user.pk))
-  
-    reset_link = f'http://localhost:5173/reset-password/{uidb64}/{token}/'
+    # reset_link = f'https://doctime.netlify.app/reset-password/{uidb64}/{token}/'
+    # reset_link = f'http://localhost:5173/reset-password/{uidb64}/{token}/'
+    
+    reset_link = f'https://doctime.netlify.app/reset-password/{uidb64}/{token}/'
 
     #Build the reset link URL
     # reset_link= reverse('password_reset_confirm',kwargs={'uidb64':uidb64,'token':token})
