@@ -27,9 +27,15 @@ def getRoutes(request):
     routes = [
         'api/token',
         'api/token/refresh',
-        'api/refresh',
+        'api/refresh/',
         'api/verify-otp/',
         'api/user-list/',
+        'api/register',
+        'api/patients/<userid>/',
+        'api/create-patient/',
+        'api/reset-password/',
+        'api/forgot-password/',
+        'api/new-password/'
     ]
     return Response(routes)
 
