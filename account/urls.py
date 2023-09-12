@@ -8,7 +8,7 @@ urlpatterns = [
     path('token/', views.MytokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register', views.Registerview.as_view()),
-    path('verify-otp/', views.OTPVerification.as_view(), name='verify-otp'),
+    path('verify-otp/', views.OTPVerification.as_view(), name='verify_otp'),
     path('user-list/', views.userList, name='user-list'),
     path('patients/<int:userId>/',views.get_patients,name='patients'),
     path('create-patient/',views.PatientCreateView.as_view(),name='create-patient'),
@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('forgot-password/',views.ForgotPassword,name='forgot-password'),
     path('new-password/',views.reset_password,name='reset-password'),
-    path('block-user/<int:user_id>/',views.BlockUserView.as_view())
+    path('block-user/<int:user_id>/',views.BlockUserView.as_view()),
+    path('user/<int:user_id>/',views.user_details,name='user_details')
 
 ]

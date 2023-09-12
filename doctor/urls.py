@@ -28,5 +28,7 @@ urlpatterns = [
     path('slot/create/',views.SlotCreateView.as_view(),name='create-slot'),
     path('slot-list/<int:doctor_id>/',views.DoctorAvailableSlotsView.as_view(),name='slot-list'),
     path('slot-delete/<int:slot_id>/',views.SlotDelete.as_view(),name='delete-slot'),
-    path('get-doctor-profile/<int:doctor_id>/',views.get_doctor_profile,name='doctor-profile')
+    path('get-doctor-profile/<int:doctor_id>/',views.get_doctor_profile,name='doctor-profile'),
+    path('doctor_by_user_id/<int:user_id>/',views.doctor_by_userprofile,name='doctor_by_user_id'),
+
 ]

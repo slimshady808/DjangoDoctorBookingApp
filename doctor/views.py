@@ -299,3 +299,19 @@ def get_doctor_profile(request, doctor_id):
     }
 
     return Response(doctor_profile_data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def doctor_by_userprofile(request,user_id):
+    try:
+        doctor=Doctor.objects.get(user_profile=user_id)
+        serializer=DoctorSerializer(doctor)
+    except Doctor.DoesNotExist:
+        return Response({'data':'doctor not exist'},status=status.HTTP_404_NOT_FOUND)
+    return Response(serializer.data,status=status.HTTP_200_OK)
+
+
+        
+
+    
+
+

@@ -220,3 +220,12 @@ class BlockUserView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+@api_view(['GET'])
+def user_details(request,user_id):
+    try:
+        user=UserProfile.objects.get(id=user_id)
+        serializer=UserProfileSerializer(user)
+        
+    except UserProfile.DoesNotExist:
+        return Response({'data':'user nat available'},status=status.HTTP_404_NOT_FOUND)
+    return Response (serializer.data,status=status.HTTP_200_OK)
