@@ -22,6 +22,7 @@ DEBUG = os.environ.get('DEBUG') == 'TRUE'
 # ALLOWED_HOSTS = ['51.20.3.40','doctor.gadgetgallery.online','127.0.0.1']
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
+CSRF_TRUSTED_ORIGINS=['https://doctor.gadgetgallery.online']
 
 # Application definition
 
