@@ -14,7 +14,7 @@ from .serializers import DoctorSerializer,DepartmentSerializer,AddressSerializer
 from account.serializers import UserProfileSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import filters
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import JsonResponse
 from .models import Department, Qualification
@@ -37,18 +37,18 @@ def getRoutes(request):
 
 
 
-class Departments(APIView):
-    def get (self,request):
-        departments=Department.objects.all()
+# class Departments(APIView):
+#     def get (self,request):
+#         departments=Department.objects.all()
 
-        serializer = DepartmentSerializer(departments,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK )
-class Qualifications(APIView):
-    def get (self,request):
-        qualifications=Qualification.objects.all()
+#         serializer = DepartmentSerializer(departments,many=True)
+#         return Response(serializer.data,status=status.HTTP_200_OK )
+# class Qualifications(APIView):
+#     def get (self,request):
+#         qualifications=Qualification.objects.all()
 
-        serializer =QualificationSerializer(qualifications,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)   
+#         serializer =QualificationSerializer(qualifications,many=True)
+#         return Response(serializer.data,status=status.HTTP_200_OK)   
     
 
 
@@ -189,24 +189,24 @@ class SlotCreateView(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['GET'])  
-def department_byId(request,department_id):
-    try:
-        department=Department.objects.get(id=department_id)
-        serializer=DepartmentSerializer(department)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    except Department.DoesNotExist:
-        return Response({'detail':"Department not found"},status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])  
+# def department_byId(request,department_id):
+#     try:
+#         department=Department.objects.get(id=department_id)
+#         serializer=DepartmentSerializer(department)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
+#     except Department.DoesNotExist:
+#         return Response({'detail':"Department not found"},status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
-def qualification_ById(request,qualification_id):
-    try:
-        qualification=Qualification.objects.get(id=qualification_id)
-        serializer=QualificationSerializer(qualification)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    except Qualification.DoesNotExist:
-        return Response({'detail':"qualification not found"},status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# def qualification_ById(request,qualification_id):
+#     try:
+#         qualification=Qualification.objects.get(id=qualification_id)
+#         serializer=QualificationSerializer(qualification)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
+#     except Qualification.DoesNotExist:
+#         return Response({'detail':"qualification not found"},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def get_available_dates(request, doctor_id):
@@ -310,6 +310,25 @@ def doctor_by_userprofile(request,user_id):
     return Response(serializer.data,status=status.HTTP_200_OK)
 
 
+
+
+class DepartmentListCreateView(ListCreateAPIView):
+    queryset=Department.objects.all()
+    serializer_class=DepartmentSerializer
+    
+
+class DepartmentRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+class QualificationListCreateView(ListCreateAPIView):
+    queryset = Qualification.objects.all()
+    serializer_class = QualificationSerializer
+   
+
+class QualificationRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    queryset = Qualification.objects.all()
+    serializer_class = QualificationSerializer
         
 
     

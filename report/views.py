@@ -11,6 +11,7 @@ from rest_framework.generics import CreateAPIView
 from django.shortcuts import get_object_or_404
 from account.models import UserProfile
 from doctor.models import Doctor
+from rest_framework.generics import RetrieveUpdateAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
 # Create your views here.
 
 
@@ -74,12 +75,12 @@ class ReportUpdateView(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def get_test_titles(request):
+# @api_view(['GET'])
+# def get_test_titles(request):
    
-    tes_titles=TestTitle.objects.all()
-    serializer=TestTitleSerializer(tes_titles,many=True)
-    return Response(serializer.data,status=status.HTTP_200_OK)
+#     tes_titles=TestTitle.objects.all()
+#     serializer=TestTitleSerializer(tes_titles,many=True)
+#     return Response(serializer.data,status=status.HTTP_200_OK)
 
 
 class TestReportCreateView(APIView):
@@ -163,3 +164,11 @@ class GetHeathReportByBookingId(APIView):
         
         except (Booking.DoesNotExist, Report.DoesNotExist):
             return Response({'error': 'No health report found for the given booking ID'})
+
+class TestTitlesListCreateView(ListCreateAPIView):
+    queryset=TestTitle.objects.all()
+    serializer_class=TestTitleSerializer
+
+class TestTitlesRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    queryset=TestTitle.objects.all()
+    serializer_class=TestTitleSerializer
