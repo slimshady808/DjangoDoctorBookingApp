@@ -11,6 +11,7 @@ from rest_framework.generics import CreateAPIView
 from django.shortcuts import get_object_or_404
 from account.models import UserProfile
 from doctor.models import Doctor
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import RetrieveUpdateAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
 # Create your views here.
 
@@ -22,6 +23,10 @@ def getRoutes(request):
        
     ]
     return Response(routes)
+
+class NoPagination(PageNumberPagination):
+    page_size = None
+
 
 class ReportCreateView(APIView):
     def post(self, request, format=None):
@@ -168,6 +173,7 @@ class GetHeathReportByBookingId(APIView):
 class TestTitlesListCreateView(ListCreateAPIView):
     queryset=TestTitle.objects.all()
     serializer_class=TestTitleSerializer
+    pagination_class = NoPagination 
 
 class TestTitlesRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     queryset=TestTitle.objects.all()

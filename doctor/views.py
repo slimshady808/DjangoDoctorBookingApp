@@ -23,7 +23,7 @@ from django.utils import timezone
 from django.db import transaction
 from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404
-
+from rest_framework.pagination import PageNumberPagination
 from account.models import UserProfile
 # Create your views here.
 
@@ -50,7 +50,8 @@ def getRoutes(request):
 #         serializer =QualificationSerializer(qualifications,many=True)
 #         return Response(serializer.data,status=status.HTTP_200_OK)   
     
-
+class NoPagination(PageNumberPagination):
+    page_size = None
 
     
 class DoctorList(APIView):
@@ -142,6 +143,7 @@ class DoctorListView(ListAPIView):
     filter_backends=[filters.SearchFilter,filters.OrderingFilter]
     search_fields=['doctor_name']
     ordering_fields=['fee']
+    pagination_class = NoPagination 
 
     def get_queryset(self):
         queryset=Doctor.objects.all()
@@ -153,6 +155,7 @@ class DoctorListView(ListAPIView):
 class DoctorDetailView(RetrieveUpdateAPIView):
     queryset=Doctor.objects.all()
     serializer_class=DoctorSerializer
+    
 
 class AddressDetailView(RetrieveUpdateAPIView):
     queryset=Address.objects.all()
@@ -315,6 +318,8 @@ def doctor_by_userprofile(request,user_id):
 class DepartmentListCreateView(ListCreateAPIView):
     queryset=Department.objects.all()
     serializer_class=DepartmentSerializer
+    pagination_class = NoPagination
+   
     
 
 class DepartmentRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
@@ -324,6 +329,7 @@ class DepartmentRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 class QualificationListCreateView(ListCreateAPIView):
     queryset = Qualification.objects.all()
     serializer_class = QualificationSerializer
+    pagination_class = NoPagination 
    
 
 class QualificationRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
