@@ -1,7 +1,7 @@
 import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-
+from datetime import datetime
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -57,11 +57,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message=event['message_content']
         sender=event['sender']
         receiver=event['receiver']
+        timestamp = datetime.now().isoformat()
 
         await self.send(text_data=json.dumps({
             'message_content': message,
             'sender':sender,
-            'receiver':receiver
+            'receiver':receiver,
+            'timestamp': timestamp 
         }))
     
 
