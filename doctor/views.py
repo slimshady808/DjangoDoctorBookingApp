@@ -25,6 +25,7 @@ from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from account.models import UserProfile
+from .email import send_email
 # Create your views here.
 
 @api_view(['GET'])
@@ -95,7 +96,7 @@ class DoctorRegisterationView(APIView):
             "username": request.data.get("username"),
             "email": request.data.get("email"),
            
-            # "password": request.data.get("password"),
+         
             "user_type": "doctor",
         }
 
@@ -115,6 +116,8 @@ class DoctorRegisterationView(APIView):
             doctor_serializer = DoctorSerializer(data=doctor_data)
             doctor_serializer.is_valid(raise_exception=True)
             doctor_instance = doctor_serializer.save()
+            send_email(user_data)
+
 
         return Response(
             {"user_profile": user_serializer.data, "doctor": doctor_serializer.data},
@@ -192,24 +195,6 @@ class SlotCreateView(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
-# @api_view(['GET'])  
-# def department_byId(request,department_id):
-#     try:
-#         department=Department.objects.get(id=department_id)
-#         serializer=DepartmentSerializer(department)
-#         return Response(serializer.data,status=status.HTTP_200_OK)
-#     except Department.DoesNotExist:
-#         return Response({'detail':"Department not found"},status=status.HTTP_404_NOT_FOUND)
-
-
-# @api_view(['GET'])
-# def qualification_ById(request,qualification_id):
-#     try:
-#         qualification=Qualification.objects.get(id=qualification_id)
-#         serializer=QualificationSerializer(qualification)
-#         return Response(serializer.data,status=status.HTTP_200_OK)
-#     except Qualification.DoesNotExist:
-#         return Response({'detail':"qualification not found"},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def get_available_dates(request, doctor_id):
