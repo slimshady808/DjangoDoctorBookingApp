@@ -79,7 +79,7 @@ class DoctorList(APIView):
     
 class DoctorRegisterationView(APIView):
     def post(self, request):
-        print(request.data)
+     
         doctor_data = {
             "doctor_name": request.data.get("doctor_name"),
             "doctor_image": request.data.get("doctor_image"),
